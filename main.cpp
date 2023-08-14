@@ -11,7 +11,7 @@ DWORD GetProcessByName(char* procName) {
     process.dwSize = sizeof(process);
 
     while (Process32Next(snapshot, &process)) {
-        if (strcmp(process.szExeFile, procName)) {
+        if (strcmp(process.szExeFile, procName) == 0) {
             return process.th32ProcessID;
         }
     }
@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
     printf("DLL Path: %s\n", dllPath);
 
     DWORD procID = GetProcessByName("Minecraft.Windows.exe");
-    if (procID == -1) {
+    if (procID <= 0) {
         std::cout << "Failed to get process ID for Minecraft. Attempting to launch minecraft and try again\n";
         system("minecraft://");
 
@@ -53,14 +53,14 @@ int main(int argc, char* argv[]) {
         std::cout << "Failed to get handle to process.";
         system("pause");
         return -1;
-    } printf("Successfully got handle to Minecraft");
+    } printf("Successfully got handle to Minecraft\n");
 
     LPVOID pathAddr = VirtualAllocEx(procHandle, nullptr, lstrlen(dllPath)+1, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
     if (pathAddr == nullptr) {
         std::cout << "Failed to allocate process memory\n";
         system("pause");
         return -1;
-    } printf("Memory allocated at: 0x%x", (unsigned int)(uintptr_t)pathAddr);
+    } printf("Memory allocated at: 0x%x\n", (unsigned int)(uintptr_t)pathAddr);
 
     bool memWriteResult = WriteProcessMemory(procHandle, pathAddr, dllPath, lstrlen(dllPath)+1, nullptr);
     if (!memWriteResult) {
@@ -74,14 +74,14 @@ int main(int argc, char* argv[]) {
         std::cout << "Failed to get handle to \"kernel32.dll\"\n";
         system("pause");
         return -1;
-    } printf("Found handle to \"kernel32.dll\"");
+    } printf("Found handle to \"kernel32.dll\"\n");
 
     FARPROC llFuncAddr = GetProcAddress(k32Handle, "LoadLibraryA");
     if (llFuncAddr == nullptr) {
         std::cout << "Failed to get address of \"LoadLibraryA\" function\n";
         system("pause");
         return -1;
-    } printf("Found address of \"LoadLibraryA\"");
+    } printf("Found address of \"LoadLibraryA\"\n");
 
     HANDLE threadResult = CreateRemoteThread(procHandle, nullptr, 0, (LPTHREAD_START_ROUTINE)llFuncAddr, pathAddr, 0, 0);
     if (threadResult == INVALID_HANDLE_VALUE) {
