@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
 
     HANDLE procHandle = OpenProcess(PROCESS_ALL_ACCESS, false, procID);
     if (procHandle == INVALID_HANDLE_VALUE) {
-        std::cout << "Failed to get handle to process.";
+        std::cout << "Failed to get handle to process.\n";
         system("pause");
         return -1;
     } printf("Successfully got handle to Minecraft\n");
@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
         return -1;
     } printf("Found address of \"LoadLibraryA\"\n");
 
-    HANDLE threadResult = CreateRemoteThread(procHandle, nullptr, 0, (LPTHREAD_START_ROUTINE)llFuncAddr, pathAddr, 0, 0);
+    HANDLE threadResult = CreateRemoteThread(procHandle, nullptr, 0, (LPTHREAD_START_ROUTINE)llFuncAddr, pathAddr, 0, nullptr);
     if (threadResult == INVALID_HANDLE_VALUE) {
         std::cout << "Failed to create thread in remote process\n";
         system("pause");
